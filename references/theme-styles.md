@@ -26,24 +26,76 @@ Option `bricks_theme_styles`. Shape:
   "mystyle1": {
     "label": "Main",
     "settings": {
-      "general": { "containerWidth": "1200px", "sectionVerticalPadding": "80px" },
-      "colors": { "primary": { "hex": "#1d4ed8" }, "secondary": { "hex": "#0f172a" } },
+      "general": { "siteBackground": { "color": { "hex": "#ffffff" } } },
+      "colors": { "colorPrimary": { "hex": "#1d4ed8" }, "colorSecondary": { "hex": "#0f172a" } },
       "typography": {
-        "fontFamily": "Inter",
-        "h1Typography": { "font-size": "3rem", "font-weight": "700", "line-height": "1.1" },
-        "bodyTypography": { "font-size": "1rem", "line-height": "1.6", "color": { "hex": "#334155" } },
-        "linkColor": { "hex": "#1d4ed8" }
+        "typographyBody": { "font-family": "Inter", "font-size": "1rem", "line-height": "1.6", "color": { "hex": "#334155" } },
+        "typographyHeadings": { "font-family": "Inter", "font-weight": "700", "line-height": "1.1" },
+        "typographyHeadingH1": { "font-size": "3rem" },
+        "h1Margin": { "bottom": "1rem" }
       },
-      "button": { "backgroundColor": { "hex": "#1d4ed8" }, "border": { "radius": { "top": "8px", "right": "8px", "bottom": "8px", "left": "8px" } } },
-      "conditions": [ { "main": "any" } ]
+      "links": {
+        "typography": { "color": { "hex": "#1d4ed8" } },
+        "typography:hover": { "color": { "hex": "#1e40af" } }
+      },
+      "button": {
+        "primaryBackground": { "hex": "#1d4ed8" },
+        "primaryTypography": { "color": { "hex": "#ffffff" } },
+        "primaryBorder": { "radius": { "top": "8px", "right": "8px", "bottom": "8px", "left": "8px" } }
+      },
+      "container": { "width": "1200px" },
+      "conditions": { "conditions": [ { "id": "cond1", "main": "any" } ] }
     }
   }
 }
 ```
 
-Groups: `general` (container width, section padding, gaps), `colors` (primary/secondary/light/dark/muted/border/info/success/warning/danger — these feed `style: "primary"` on buttons/badges), `typography` (body, h1–h6, links, blockquote, code), `links`, `content`, `contextualSpacing`, `popup`, plus per-element groups (`section`, `container`, `block`, `button`, `heading`, `form`, `image`…).
+### Control keys are NOT guessable
 
-Conditions use the same shape as template conditions (`{ "main": "any" }`, `postType`, `ids`…). Multiple styles can apply; specificity: site < post type < template < specific ids.
+`update_option( 'bricks_theme_styles', … )` accepts **any** key. Bricks reads
+only the ones it knows, so an invented key is stored, survives a re-read, and
+renders nothing — the option says the style is applied and the page disagrees.
+
+The authoritative list is one file per group in the theme:
+
+```
+wp-content/themes/bricks/includes/theme-styles/controls/*.php
+```
+
+Names that read plausibly but do **not** exist:
+
+| Wrong | Right | Group |
+|---|---|---|
+| `general.containerWidth` | `container.width` | container |
+| `colors.primary` / `.secondary` | `colors.colorPrimary` / `colorSecondary` (also `colorLight`, `colorDark`, `colorMuted`, `colorBorder`, `colorInfo`, `colorSuccess`, `colorWarning`, `colorDanger`) | colors |
+| `general.backgroundColor` | `general.siteBackground` (a `background` control → `{color:{hex}}`) | general |
+| `typography.fontFamily` | `typography.typographyBody['font-family']` | typography |
+| `typography.h1Typography` | `typography.typographyHeadingH1` | typography |
+| `typography.bodyTypography` | `typography.typographyBody` | typography |
+| `typography.linkColor` | `links.typography.color` | links |
+| `button.backgroundColor` | `button.primaryBackground` | button |
+| `button.border` | `button.primaryBorder` | button |
+
+Hover and breakpoint variants use a `:` suffix on the **key**, same grammar as
+element settings: `primaryBackground:hover`, `typographyBody:mobile_portrait`.
+
+Two gotchas when grepping the control files yourself:
+
+- `typographyHeadingH1`–`H6` and `h1Margin`–`h6Margin` are real literals, but a
+  pattern like `grep -oE "\$controls\['[a-zA-Z]+'\]"` drops them — `[a-zA-Z]+`
+  does not match the digit. Include `0-9`.
+- Colour values want `{hex, id, name}` where `id` is the **palette colour id**.
+  A bare `{hex}` renders correct CSS but the Styles Manager picker has nothing
+  to bind to, so it shows an empty swatch and the value stops tracking the
+  palette. Bound colours compile to `var(--bricks-color-<id>)`; unbound ones to
+  a literal — that is how you tell.
+
+The most reliable reference is a theme style **Bricks itself authored** on a
+real site: `wp option get bricks_theme_styles --format=json`.
+
+Groups (each is a file under `includes/theme-styles/controls/`): `general` (site layout/background/border, lightbox), `colors`, `typography` (body, all-headings, per-heading H1–H6, hero, lead, blockquote), `links`, `content`, `contextualSpacing`, `popups`, `css`, plus per-element groups named `element-*` but keyed without the prefix (`section`, `container`, `block`, `button`, `heading`, `form`, `image`…).
+
+Conditions nest under their own key — `"conditions": { "conditions": [ … ] }` — and each entry needs an `id`. **A style with no conditions applies to nothing, silently.** Same shape as template conditions otherwise (`{ "main": "any" }`, `postType`, `ids`…). Multiple styles can apply; specificity: site < post type < template < specific ids.
 
 **Authoring rule:** lean on theme styles for site identity (type scale, container width, button colors) and keep generated layout JSON about *structure*. When the user asks for a full design system, deliver a theme-styles JSON snippet alongside layout JSON.
 

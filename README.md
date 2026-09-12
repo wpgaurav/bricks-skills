@@ -1,5 +1,7 @@
 # Bricks Builder Skill
 
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?style=flat&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/gauravtiwari)
+
 An AI skill for one-shotting [Bricks Builder](https://bricksbuilder.io/) designs as JSON — hero sections, full landing pages, headers/footers, query loops with faceted filters, ACF-driven layouts, conditions, animations, and popups. Every settings key and value shape is verified against the Bricks **2.3.6** theme source, not guessed.
 
 ## What's inside
@@ -157,6 +159,16 @@ Plus the things docs rarely cover: the exact clipboard wrapper the builder write
 ## Patterns
 
 17 validated files in [patterns/](patterns/) — heroes, feature grid, pricing, testimonials slider, FAQ accordion (with FAQ schema), CTA, contact form, ACF team loop, filterable blog archive, header/footer/popup templates, plus three **BEM class-based test builds** (`bem-hero`, `bem-card-grid`, `bem-pricing`) where every style lives in `block__element--modifier` global classes. Each file passes a structural integrity check (tree reciprocity, class references, format keys). See [INDEX.md](patterns/INDEX.md).
+
+## Support This Project
+
+This free, MIT-licensed skill gives your AI tool the exact JSON shapes Bricks Builder expects for heroes, query loops, popups and ACF-driven layouts. I checked every settings key and value shape against the Bricks 2.3.6 theme source and each of the 17 patterns passes a structural integrity check.
+
+If the JSON pasted cleanly into Bricks and you didn't have to chase a wrong typography key or a made-up breakpoint name, you can buy me a coffee.
+
+<a href="https://buymeacoffee.com/gauravtiwari"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" height="50"></a>
+
+You can also star the repo, and if a setting silently goes missing in the builder, please open an issue with your prompt and the JSON the skill produced.
 
 ## License
 

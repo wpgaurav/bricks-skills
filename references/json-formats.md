@@ -105,6 +105,8 @@ What Bricks > Templates > Export produces and Import consumes (`Templates::expor
 
 Bricks stores element trees as **PHP-serialized arrays** in postmeta (WordPress serializes automatically via `update_post_meta`).
 
+**Always pass arrays through `wp_slash()`.** `update_post_meta()` runs `wp_unslash()` on the value before storing it, so a bare call strips every backslash inside the element settings: `_cssCustom` with `content:"\f101"` is stored as `content:"f101"`, and escaped quotes in code or custom attributes break the same way. Verified against WordPress 6.9 `update_metadata()`. Options are different: `update_option()` does not unslash, so never `wp_slash()` an option value.
+
 | Meta key | Holds |
 |----------|-------|
 | `_bricks_page_content_2` | Element array for page/template content |
@@ -124,7 +126,7 @@ $post_id = wp_insert_post( [
     'post_title'  => 'Landing Page',
 ] );
 
-update_post_meta( $post_id, '_bricks_page_content_2', $elements ); // array, NOT json string
+update_post_meta( $post_id, '_bricks_page_content_2', wp_slash( $elements ) ); // array, NOT json string; wp_slash keeps backslashes
 update_post_meta( $post_id, '_bricks_editor_mode', 'bricks' );
 ```
 
@@ -132,9 +134,9 @@ For a template post additionally:
 
 ```php
 update_post_meta( $post_id, '_bricks_template_type', 'header' );
-update_post_meta( $post_id, '_bricks_template_settings', [
+update_post_meta( $post_id, '_bricks_template_settings', wp_slash( [
     'templateConditions' => [ [ 'main' => 'any' ] ],
-] );
+] ) );
 ```
 
 After bulk inserts, regenerate CSS (only needed when CSS loading method is "External files"):
@@ -147,7 +149,7 @@ Global classes used by inserted elements must exist in the `bricks_global_classe
 
 ```php
 $classes = get_option( 'bricks_global_classes', [] );
-// append any missing class objects, then:
+// append any missing class objects, then (no wp_slash: options are not unslashed):
 update_option( 'bricks_global_classes', $classes );
 ```
 
@@ -175,10 +177,14 @@ import json,sys
 d=json.load(open('layout.json'))
 els=d.get('content', d.get('header', d.get('footer', [])))
 ids={e['id'] for e in els}
+byid={e['id']:e for e in els}
 assert len(ids)==len(els), 'duplicate ids'
 for e in els:
     assert e['parent']==0 or e['parent'] in ids, f"orphan parent: {e['id']}"
-    for c in e.get('children',[]): assert c in ids, f"missing child {c} of {e['id']}"
+    assert e['parent']==0 or e['id'] in byid[e['parent']].get('children',[]), f"parent of {e['id']} does not list it"
+    for c in e.get('children',[]):
+        assert c in ids, f"missing child {c} of {e['id']}"
+        assert byid[c]['parent']==e['id'], f"child {c} does not point back to {e['id']}"
 used={c for e in els for c in (e['settings'].get('_cssGlobalClasses') or [])}
 have={g['id'] for g in d.get('globalClasses', d.get('global_classes', []))}
 assert used<=have, f"classes missing: {used-have}"

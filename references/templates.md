@@ -83,8 +83,8 @@ See json-formats.md for full meta-key table and code. Short version:
 ```php
 $id = wp_insert_post( [ 'post_type' => 'bricks_template', 'post_status' => 'publish', 'post_title' => 'Main Header' ] );
 update_post_meta( $id, '_bricks_template_type', 'header' );
-update_post_meta( $id, '_bricks_page_header_2', $elements );   // header templates use the header meta key
-update_post_meta( $id, '_bricks_template_settings', [ 'templateConditions' => [ [ 'main' => 'any' ] ] ] );
+update_post_meta( $id, '_bricks_page_header_2', wp_slash( $elements ) );   // header templates use the header meta key; wp_slash keeps backslashes
+update_post_meta( $id, '_bricks_template_settings', wp_slash( [ 'templateConditions' => [ [ 'main' => 'any' ] ] ] ) );
 update_post_meta( $id, '_bricks_editor_mode', 'bricks' );
 ```
 

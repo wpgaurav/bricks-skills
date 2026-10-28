@@ -4,6 +4,8 @@
 
 An AI skill for one-shotting [Bricks Builder](https://bricksbuilder.io/) designs as JSON — hero sections, full landing pages, headers/footers, query loops with faceted filters, ACF-driven layouts, conditions, animations, and popups. Every settings key and value shape is verified against the Bricks **2.3.6** theme source, not guessed.
 
+**Want the agent to edit the live site, not just hand you JSON?** Pair this skill with [Site Agent](https://gauravtiwari.org/product/site-agent/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills), my free WordPress MCP plugin that runs Bricks' own abilities on Bricks 2.4+. [How it works](#push-it-into-a-live-bricks-site).
+
 ## What's inside
 
 ```
@@ -141,6 +143,46 @@ It's all plain Markdown, so it works anywhere — Gemini, Windsurf, Aider, Zed, 
 > "Team section from my ACF repeater `team_members` (photo, name, role, linkedin_url)."
 
 You get a `.json` file: paste it into the builder (clipboard format) or import it via **Bricks → Templates** (template format).
+
+## Push it into a live Bricks site
+
+Pasting works for one section. When you want the agent to read the page, change it and check the result itself, connect it to the site with [**Site Agent**](https://gauravtiwari.org/product/site-agent/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills), my free WordPress MCP plugin. It's the first route I'd pick for Bricks, for three reasons:
+
+- **It uses Bricks' own tools.** On Bricks 2.4 and later, switch on Bricks tools and the agent gets Bricks' abilities next to Site Agent's: page summaries, page edits, imports, revisions and CSS regeneration, with Bricks' own permission and input checks in charge.
+- **It won't corrupt layout data.** Bricks stores element arrays in post meta. Site Agent's content writes refuse raw Bricks data, so changes go through Bricks' save path and the CSS doesn't go stale.
+- **Big pages still fit.** A summary read returns element counts, headings and structure, so the agent can understand a long layout before it touches it.
+
+```json
+{
+  "name": "site-agent-run-bricks-ability",
+  "arguments": {
+    "ability_name": "bricks/get-page-elements",
+    "parameters": { "postId": 42, "responseFormat": "summary" }
+  }
+}
+```
+
+Clients sign in through WordPress with OAuth (Claude, ChatGPT, Claude Code, Codex, Cursor, VS Code, Gemini, Zed). Tools that change things stay off until you switch them on. On Bricks 2.3.x, generate the JSON with this skill and paste or import it by hand. Staging first, always.
+
+## Tools that pair well with this skill
+
+The skill is free and works without any of this. These are products I build, and each one covers something a layout skill can't.
+
+| You want to | Use | Why it fits |
+|-------------|-----|-------------|
+| Let the agent edit the site, not just the chat | [**Site Agent**](https://gauravtiwari.org/product/site-agent/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) (free) | Runs Bricks' own abilities over MCP. See [Push it into a live Bricks site](#push-it-into-a-live-bricks-site). |
+| Give every section the same look | [**Design Systems Library**](https://gauravtiwari.org/product/design-systems-library/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) | Agent-ready design systems: tokens, a `DESIGN.md` rulebook, components, fonts and live demos. Map the tokens to Bricks global variables and classes once (see [components-classes.md](references/components-classes.md)), and every layout the agent writes uses the same palette, type and radius. |
+| Run a WooCommerce store on Bricks | [**Stackless for WooCommerce**](https://gauravtiwari.org/product/stackless-for-woocommerce/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) ([free Lite](https://gauravtiwari.org/product/stackless-lite-for-woocommerce/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills)) | Subscriptions, Stripe, PayPal, Paddle, licensing, multi-currency and invoices in one plugin on core WooCommerce. Build the shop templates with [woocommerce.md](references/woocommerce.md); let Stackless replace the add-on stack behind them. Switched-off modules load no code. |
+| Sell digital downloads with Easy Digital Downloads | [**Stackless for EDD**](https://gauravtiwari.org/product/stackless-for-edd/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) ([free Lite](https://gauravtiwari.org/product/stackless-lite-for-edd/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills)) | Subscriptions, licensing, gateways, multi-currency and invoices for EDD in one plugin. Pairs with the query-loop and dynamic-data references for download archives. |
+| Keep the finished pages fast | [**GT Performance**](https://gauravtiwari.org/product/gt-performance/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) (free) | Page cache, Cloudflare Free integration, unused CSS removal and Redis, with commerce safeguards. |
+| Get more skills like this one | [**AI Skills Library**](https://gauravtiwari.org/product/ai-skills-library/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) or [**All-Access Pass**](https://gauravtiwari.org/product/all-access/?utm_source=github&utm_medium=readme&utm_campaign=bricks-skills) | Writing and visual skills for Claude Code, Codex and Cursor. All-Access adds the Design Systems Library and Notion templates in one yearly pass. |
+
+### More open-source skills
+
+- [GenerateBlocks skills](https://github.com/wpgaurav/generateblocks-skills): GenerateBlocks V2 layouts, conversions and live publishing, verified in the editor
+- [Kadence skills](https://github.com/wpgaurav/kadence-skills): Kadence Blocks markup for Gutenberg templates
+- [WordPress skills](https://github.com/wpgaurav/WordPress-skills): 125+ skills for WordPress, design, SEO and marketing
+- [Claude Code skills](https://github.com/wpgaurav/claude-code-skills): stop-slop, red-pen, polish and other anti-slop skills
 
 ## Why this exists
 
